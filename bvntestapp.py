@@ -182,31 +182,29 @@ def paytorave():
     rave = PayTest()
     data_ = rave.pay_via_card()
     #return str(data_)
-    tr_ref = data_['data']['flwRef']
-    if data_['data']['authModelUsed'] == 'PIN':
+    if data_['status'] == 'error':
+        alert_ = 'An error occurred, please try again'
+        flash(alert, category='error')
+        return redirect ('/raveform')
+    else:
 
-        headers = {
-            'content-type': 'application/json',
-        }
+        tr_ref = data_['data']['flwRef']
 
-        data = '{"PBFPubKey":"FLWPUBK-41ff7286b6aba0b4355f7e20bd998313-X","transaction_reference":'+tr_ref+',"otp":12345}'
+        if data_['data']['authModelUsed'] == 'PIN':
 
-        respons = requests.post('https://api.ravepay.co/flwv3-pug/getpaidx/api/validatecharge', headers=headers, data=data)
-        resp = respons.json()
-        return str(resp)
-    elif data_['data']['authModelUsed'] == 'VBVSECURECODE':
-        
-        return redirect(data_['data']['authurl'])
+            headers = {
+                'content-type': 'application/json',
+            }
 
-        headers = {
-            'content-type': 'application/json',
-        }
+            data = '{"PBFPubKey":"FLWPUBK-41ff7286b6aba0b4355f7e20bd998313-X","transaction_reference":'+tr_ref+',"otp":12345}'
 
-        data = '{"txref":"MC-1520443531487","SECKEY":"FLWSECK-24b8ce267689e5e535af78d1ff71f21b-X"}'
+            respons = requests.post('https://api.ravepay.co/flwv3-pug/getpaidx/api/validatecharge', headers=headers, data=data)
+            resp = respons.json()
+            return str(resp)
+        elif data_['data']['authModelUsed'] == 'VBVSECURECODE':
+            
+            return redirect(data_['data']['authurl'])
 
-        respon = requests.post('https://api.ravepay.co/flwv3-pug/getpaidx/api/v2/verify', headers=headers, data=data)
-        res = respon.json()
-        return str(res)
 
 @app.route('/validate')
 def validate():
